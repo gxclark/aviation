@@ -1,0 +1,6 @@
+url : https://olverol-bn92760.snowflakecomputing.com/console/
+password: Summer07
+
+ANKURMADIA
+USER_ADMIN
+MSTR_USER
