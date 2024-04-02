@@ -1,12 +1,5 @@
 -- s3 bucket with parquet files is expected to be mounted to dbx at /mnt/mount_s3
 
--- schemas
-CREATE SCHEMA IF NOT EXISTS air_oai_facts;
-CREATE SCHEMA IF NOT EXISTS air_oai_dims;
-CREATE SCHEMA IF NOT EXISTS air_faa_reg;
-CREATE SCHEMA IF NOT EXISTS airlines_dbx;
-CREATE SCHEMA IF NOT EXISTS calendar_dbx;
-
 -- air_oai_facts.airline_flights_scheduled
 DROP TABLE IF EXISTS air_oai_facts.airline_flights_scheduled;
 CREATE TABLE air_oai_facts.airline_flights_scheduled USING PARQUET LOCATION '/mnt/mount_s3/OTP/schedule/parquet';
