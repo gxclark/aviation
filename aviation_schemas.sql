@@ -1,0 +1,6 @@
+-- schemas
+CREATE SCHEMA IF NOT EXISTS air_oai_facts;
+CREATE SCHEMA IF NOT EXISTS air_oai_dims;
+CREATE SCHEMA IF NOT EXISTS air_faa_reg;
+CREATE SCHEMA IF NOT EXISTS airlines_dbx;
+CREATE SCHEMA IF NOT EXISTS calendar_dbx;
