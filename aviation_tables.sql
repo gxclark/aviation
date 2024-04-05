@@ -80,3 +80,43 @@ CREATE TABLE air_faa_reg.aircraft_reference USING PARQUET LOCATION '/mnt/mount_s
 -- air_faa_reg.engine_reference
 DROP TABLE IF EXISTS air_faa_reg.engine_reference;
 CREATE TABLE air_faa_reg.engine_reference USING PARQUET LOCATION '/mnt/mount_s3/FAA/parquet/engine_reference.parquet';
+
+-- calendar_dbx.calendar_date_alpha
+DROP TABLE IF EXISTS calendar_dbx.calendar_date_alpha;
+CREATE TABLE calendar_dbx.calendar_date_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/calendar_date_alpha.parquet';
+
+-- calendar_dbx.day_of_week_alpha
+DROP TABLE IF EXISTS calendar_dbx.day_of_week_alpha;
+CREATE TABLE calendar_dbx.day_of_week_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/day_of_week_alpha.parquet';
+
+-- calendar_dbx.gregorian_month_of_year_alpha
+DROP TABLE IF EXISTS calendar_dbx.gregorian_month_of_year_alpha;
+CREATE TABLE calendar_dbx.gregorian_month_of_year_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/gregorian_month_of_year_alpha.parquet';
+
+-- calendar_dbx.gregorian_quarter_of_year_alpha
+DROP TABLE IF EXISTS calendar_dbx.gregorian_quarter_of_year_alpha;
+CREATE TABLE calendar_dbx.gregorian_quarter_of_year_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/gregorian_quarter_of_year_alpha.parquet';
+
+-- calendar_dbx.gregorian_year_alpha
+DROP TABLE IF EXISTS calendar_dbx.gregorian_year_alpha;
+CREATE TABLE calendar_dbx.gregorian_year_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/gregorian_year_alpha.parquet';
+
+-- calendar_dbx.gregorian_year_month_alpha
+DROP TABLE IF EXISTS calendar_dbx.gregorian_year_month_alpha;
+CREATE TABLE calendar_dbx.gregorian_year_month_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/gregorian_year_month_alpha.parquet';
+
+-- calendar_dbx.gregorian_year_quarter_alpha
+DROP TABLE IF EXISTS calendar_dbx.gregorian_year_quarter_alpha;
+CREATE TABLE calendar_dbx.gregorian_year_quarter_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/gregorian_year_quarter_alpha.parquet';
+
+-- calendar_dbx.hour_of_day_alpha
+DROP TABLE IF EXISTS calendar_dbx.hour_of_day_alpha;
+CREATE TABLE calendar_dbx.hour_of_day_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/hour_of_day_alpha.parquet';
+
+-- calendar_dbx.minute_of_hour_alpha
+DROP TABLE IF EXISTS calendar_dbx.minute_of_hour_alpha;
+CREATE TABLE calendar_dbx.minute_of_hour_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/minute_of_hour_alpha.parquet';
+
+-- calendar_dbx.year_week_alpha
+DROP TABLE IF EXISTS calendar_dbx.year_week_alpha;
+CREATE TABLE calendar_dbx.year_week_alpha USING PARQUET LOCATION '/mnt/mount_s3/CAL/parquet/year_week_alpha.parquet';
