@@ -298,3 +298,15 @@ SELECT ltrim(rtrim(engine_reference_code))::varchar(5) as engine_reference_code
 	 , ltrim(rtrim(engine_horsepower))::integer as engine_horsepower
 	 , ltrim(rtrim(engine_thrust_lbs))::integer as engine_thrust_lbs
 FROM air_faa_reg.engine_reference;
+
+-- CAL base views
+create or replace view calendar_dbx.calendar_date_v as select *, 1::integer as calendar_date_qty from calendar_dbx.calendar_date_alpha;
+create or replace view calendar_dbx.calendar_year_v as select *, 1::integer as calendar_year_qty from calendar_dbx.gregorian_year_alpha;
+create or replace view calendar_dbx.day_of_week_v as select *, 1::integer as day_of_week_qty from calendar_dbx.day_of_week_alpha;
+create or replace view calendar_dbx.hour_of_day_v as select *, 1::integer as hour_of_day_qty from calendar_dbx.hour_of_day_alpha;
+create or replace view calendar_dbx.minute_of_hour_v as select *, 1::integer as minute_of_hour_qty from calendar_dbx.minute_of_hour_alpha;
+create or replace view calendar_dbx.month_of_year_v as select *, 1::integer as month_of_year_qty from calendar_dbx.gregorian_month_of_year_alpha;
+create or replace view calendar_dbx.quarter_of_year_v as select *, 1::integer as quarter_of_year_qty from calendar_dbx.gregorian_quarter_of_year_alpha;
+create or replace view calendar_dbx.year_month_v as select *, 1::integer as year_month_qty from calendar_dbx.gregorian_year_month_alpha;
+create or replace view calendar_dbx.year_quarter_v as select *, 1::integer as year_quarter_qty from calendar_dbx.gregorian_year_quarter_alpha;
+create or replace view calendar_dbx.year_week_v as select *, 1::integer as year_week_qty from calendar_dbx.year_week_alpha;
