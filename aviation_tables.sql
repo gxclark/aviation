@@ -32,7 +32,7 @@ OPTIONS (recursiveFileLookup=true);
 
 -- air_oai_facts.airfare_survey_itinerary
 DROP TABLE IF EXISTS air_oai_facts.airfare_survey_itinerary;
-CREATE TABLE air_oai_facts.airfare_survey_itinerary USING PARQUET LOCATION '/mnt/mount_s3/DB1B/market/parquet/airfare_survey_itinerary'
+CREATE TABLE air_oai_facts.airfare_survey_itinerary USING PARQUET LOCATION '/mnt/mount_s3/DB1B/ticket/parquet/airfare_survey_itinerary'
 OPTIONS (recursiveFileLookup=true);
 
 -- air_oai_facts.airfare_survey_coupon
