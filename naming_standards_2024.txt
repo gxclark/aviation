@@ -1,0 +1,174 @@
+Database Object Naming Standards / Guidelines
+
+The database name is aviation.
+
+Use Schemata for Table Organization
+
+
+
+Table names include a prefix, to group and organize them.  This implemented as a schema in most databases.  This prefix might be a word, acronym, or set of acronyms for the source of the data in the table, examples:
+
+air_oai_dims
+air_oai_facts
+air_oai_fin
+air_oai_loads
+air_oai_parts
+
+air_:
+These all start with "air", meaning they will be exposed for use by MicroStrategy (or other tools, like python) in the "airlines" schema via views.  Note, because we have our projects co-located in a single MSTR server, and the database instances and table prefixes are shared between projects, we need a way to distinguish, therefore we decided to add a suffix:
+
+airlines_pg = airlines in postgres
+AIRLINES_SF = airlines in snowflake
+airlines_dbx = airlines in databricks
+etc.
+
+oai_:
+This is an expression about the source of the data, in this case ...
+USDOT = United States, Department of Transportation
+BTS = Bureau of Transporation Statistics
+OAI = Office of Airline Information
+https://en.wikipedia.org/wiki/Bureau_of_Transportation_Statistics
+https://transtats.bts.gov/
+
+dims = these are common dimensions, generally slowly changing (Kimball's "Type 2").
+
+facts = these are fact tables, large sets of data containing primary fact columns, these are specific to a time period, so should not be subject to change, once published.
+
+fin = these are datasets from the financial reporting area.
+
+loads = these are table structures intended only to initially stage data from files in ELT design.  In Postgres, sometimes these are simple COPY commands, or sometimes FDW (i.e. declare a file as an external table, and then select into another structure (table or materialized view).
+
+parts = these are the various partitions of the fact tables, and since the list can be quite long, these are separated to make database navigator operations more legible.
+
+----
+
+Entities
+
+These are generally nouns that represent the way that business people speak.  
+
+These business people include representatives from within the company, but also Customers, Suppliers, Vendors, Service Providers, Regulators, Business Associations, etc.
+
+For the airline industry, a few of the most important, global institutions that exist are:
+* ICAO = International Civil Aviation Organization, part of the United Nations.
+* IATA = International Aviation Transporation Association, an industry standards association.
+* FAA  = Federal Aviation Association, the airline regulation agency of the US.
+* Airlines = Companies licensed by the regulator to provide transporation services by aircraft.
+
+
+Modeled entities are generally organized into Subject Areas, a term from Entity Relationship modeling, which corresponds to one page.  A table may appear in more than one Subject Area, but it is owned by a single one.  In a logical data model, names match business terminology, but the modeler strives to engage with business people to make the names as precise as possible, since they will be expressed as physical structures and used by humans and non-humans who require a larger degree of precision in order to be effective.
+
+Tables, Foreign Tables, Views, Materialized Views ...
+
+In the physical data model, the names are dependent on the technology employed, based on the constraints imposed.  Definitions of objects, primary tables should include the source.
+
+For PostgreSQL, these constraints are:
+1) Table and Column name length of 128 bytes, but generally about half of this ... 65 characters?
+2) All words are forced to lower case - unless double-quoted, do not recommend this option unless absolutely required.
+Therefore, an underscore is typically used to help distinguish words for readability.
+3) Must start with a letter / must not start with a number.
+
+For example, logically "Alternate Delivery Address Postal Code" becomes "alternate_delivery_address_postal_code".
+
+Table Naming Standards:
+
+* Use a name that is long enough to contain the business meaning.
+* Use underscore to separate words.
+* Use all lower case.
+* Avoid database keywords, for example "union".
+
+Column Naming Standards:
+
+* Use a name that is long enough to contain the business meaning, even outside the context of the table.
+* Use underscore to separate words.
+* Use all lower case.
+* Avoid database keywords, for example "union".
+* Always use a classifier to end the column name.
+* Do not abbreviate, except for the classifier (see below).
+
+Classifier List:
+id = a surrogate key identifier, should be an integer.
+key = an identifier - surrogate key, natural key, UUID, MD5/SHA Hash. etc.  We are using a hashed, compound business key.
+nbr = number, implies integer or unique alphanumeric business key.
+cd = code, a short string (~10 or 15 characters)
+code = this is preferred for readability.
+nm = name, a longer string (~25+ characters)
+name = this is preferred for readability.
+ref = a reference, typically external reference data.
+abbr = abbreviation, a short code, such as a ticker symbol, etc.
+descr = description, a longer string, with a sentence (~100 characters).
+txt = text, a longer string, with comments, remarks (100+ characters).
+text = this is preferred.
+dt = date only, no hours, min, sec.
+date = this is preferred for readability.
+dttm = date, hours, min, no sec.
+tmst = date, hours, min, sec, microseconds+
+ts = audit columns will often use this for compactness.
+qty = quantity, implies integer, as in a count
+amt = amount, numeric, implies money
+by = reserved for audit columns, e.g. 'created_by', 'updated_by'.
+
+Constraint names
+
+A primary key should be the table name with a "_pk" suffix.
+For example alter table org.clients add constraint clients_pk primary key 
+
+A foreign key should be the child table name, plus the parent table name with a "_fk" suffix.
+An alternate key should be the table name with a "_ak" suffix.
+If multiple alternate keys exist, use a number to distinguish, i.e. "_ak1", "_ak2".
+
+If the database needs indexes (like PostgreSQL), use "_idx" or "_if#" with # being a small integer of increasing value.
+
+# These rules have been coded into ERwin such that it generates DDL according to these rules.
+
+Time and Timezones:
+
+If using timestamps with timezone, the convention will be to include an additional qualifier after the classifier which describes the timezone for that timestamp column of data, and it should be rigorously and vigorously applied!
+
+For example (note the _mtn / _lcl / _utc qualifiers following the _tmst classifier):
+
+_lcl: Local, in the timezone of a particular context, such as the departure or arrival of a flight at an airport.
+_utc: Univeral Coordinated Time, aka GMT Greenwich Mean Time, the British standardization, aka Zulu time the US Navy standardization.
+_mtn: Mountain time, a particular timezone in the US (Eastern, Central, Mountain and Pacific).
+
+ unloc |    time_zone_nm     | example_dt | dow | begin_time | end_time |   begin_tmst_lcl    |   begin_tmst_utc    
+-------+---------------------+------------+-----+------------+----------+---------------------+---------------------
+ USWZV | Pacific/Honolulu    | 2015-01-21 | Wed | 06:00:00   | 07:00:00 | 2015-01-21 03:00:00 | 2015-01-21 13:00:00
+ ESBCN | Europe/Madrid       | 2015-02-03 | Tue | 12:45:00   | 18:30:00 | 2015-02-03 20:45:00 | 2015-02-03 19:45:00
+ USLAX | America/Los_Angeles | 2015-09-26 | Sat | 08:00:00   | 10:00:00 | 2015-09-26 07:00:00 | 2015-09-26 14:00:00
+ CNSGH | Asia/Shanghai       | 2015-12-06 | Sun | 08:00:00   | 17:00:00 | 2015-12-06 23:00:00 | 2015-12-06 15:00:00
+ USDEN | America/Denver      | 2016-02-29 | Mon | 12:15:00   | 17:30:00 | 2016-02-29 12:15:00 | 2016-02-29 19:15:00
+ NLAMS | Europe/Amsterdam    | 2016-10-13 | Thu | 09:00:00   | 18:00:00 | 2016-10-13 17:00:00 | 2016-10-13 15:00:00
+
+ unloc |    time_zone_nm     | agenda_item_dt | dow_abbr | begin_time | end_time |   begin_tmst_mtn    |   begin_tmst_lcl    |   begin_tmst_utc    
+-------+---------------------+----------------+----------+------------+----------+---------------------+---------------------+---------------------
+ USWZV | Pacific/Honolulu    | 2015-01-21     | Wed      | 06:00:00   | 07:00:00 | 2015-01-21 06:00:00 | 2015-01-21 03:00:00 | 2015-01-21 13:00:00
+ ESBCN | Europe/Madrid       | 2015-02-03     | Tue      | 12:45:00   | 18:30:00 | 2015-02-03 12:45:00 | 2015-02-03 20:45:00 | 2015-02-03 19:45:00
+ USLAX | America/Los_Angeles | 2015-09-26     | Sat      | 08:00:00   | 10:00:00 | 2015-09-26 08:00:00 | 2015-09-26 07:00:00 | 2015-09-26 14:00:00
+ CNSGH | Asia/Shanghai       | 2015-12-06     | Sun      | 08:00:00   | 17:00:00 | 2015-12-06 08:00:00 | 2015-12-06 23:00:00 | 2015-12-06 15:00:00
+ USDEN | America/Denver      | 2016-02-29     | Mon      | 12:15:00   | 17:30:00 | 2016-02-29 12:15:00 | 2016-02-29 12:15:00 | 2016-02-29 19:15:00
+ NLAMS | Europe/Amsterdam    | 2016-10-13     | Thu      | 09:00:00   | 18:00:00 | 2016-10-13 09:00:00 | 2016-10-13 17:00:00 | 2016-10-13 15:00:00
+
+Currencies:
+Sometimes amounts of money are expressed, and if so it should include a currency code, based on ISO standard.
+
+USD = US Dollar
+EUR = Euro
+JPY = Yen
+
+Distances:
+Sometimes amounts of distance are expressed, and if so it should include a unit of measure code, based on ISO standard.
+
+KMT = Kilometer
+NMI = Nautical Mile
+SMI = Statute Mile
+
+Languages:
+Sometimes text appears in multiple languages, athough the standard default language for aviation is English (en-us).
+ISO standards should be used, they are in a few flavors:
+
+en = English
+fr = French
+de = German
+ru = Russian
+ja = Japanese
+zh = Chinese
