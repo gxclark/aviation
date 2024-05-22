@@ -1,15 +1,9 @@
-# aviation
-Aviation database, all flavors and tools
+# MicroStrategy with Databricks
 
-Leveraging our 30 year history, MicroStrategy writes the best automated SQL for all analytical databases, Cloud datawarehouses and data lakes included.  Ongoing investments data gateways show that MSTR continues the strategy to work with all major database technologies, and continues to support nearly all available options.  Please checkout the MSTR Data Gateway portal for Supported and Certified options: 
+Databricks is a unified, open analytics platform for building, deploying, sharing, and maintaining enterprise-grade data, analytics, and AI solutions at scale. The Databricks Data Intelligence Platform integrates with cloud storage and security in your cloud account, and manages and deploys cloud infrastructure on your behalf.
 
-https://www2.microstrategy.com/producthelp/Current/Gateway_Connections/WebHelp/Lang_1033/Content/home.htm
+Databricks SQL is the collection of services that bring data warehousing capabilities and performance to your existing data lakes. Databricks SQL supports open formats and standard ANSI SQL. Databricks SQL provides general compute resources that are executed against the tables in the lakehouse. Databricks SQL is powered by SQL warehouses, offering scalable SQL compute resources decoupled from storage (a SQL warehouse is a compute resource that lets you query and explore data on Databricks). 
 
-Of these many options for MSTR customers, we have selected a few that are popular choices for our customers, as we see some of them migrate to a new data platform to support their Business Intelligence and Analytics workloads.
+Databricks SQL supports many third party BI and visualization tools that can connect to SQL warehouses, including MicroStrategy.
 
-* We started off with organizing the data in PostgreSQL, due to the excellent spatial and data integration capabilities of this tool.
-* We have already started to use Snowflake as an excellent Cloud DWH, and have plans expand this.
-* We also want to build an example using Databricks, possibly using the raw CSV data in AWS S3, or better yet Parquet formatted enriched data.
-* We plan to build these workloads in AWS Redshift, which is only a hop, skip and jump from our original PostgreSQL design.
-* Also, we plan to build on Google BigQuery, as another excellent Cloud DWH option, but which has its own unique technology.
-* As time permits, we might try some advanced options, like a graph database (Neo4J?)
+To setup your Databricks environment, mount AWS S3 bucket with Parquet source files to the Databricks File System (DBFS) first. Databricks mounts create a link between a workspace and cloud object storage, which enables you to interact with cloud object storage using familiar file paths relative to the Databricks file system. Mounts work by creating a local alias under the /mnt directory (Databricks SQL scripts assume _/mnt/mount_s3_ location). After mounting the object storage, run SQL scripts to create aviation database schemas, external tables and views.
