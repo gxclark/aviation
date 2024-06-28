@@ -2,10 +2,6 @@
 -- Code does not require any source data
 -- Run on cluster with Databricks Runtime 14.1 or above
 
--- set calendar start and end years
-DECLARE OR REPLACE VARIABLE start_year INT = 1900;
-DECLARE OR REPLACE VARIABLE end_year INT = 2090;
-
 -- create schemas
 CREATE SCHEMA IF NOT EXISTS cal_gen;
 CREATE SCHEMA IF NOT EXISTS calendar_dbx;
@@ -240,7 +236,11 @@ group by 1
 --and max(week_of_year_nbr) > 50
 order by 1;
 
--- create beta calendar tables based on base views
+-- create beta calendar tables based on base views and start/end year
+-- set calendar start and end years as variables
+DECLARE OR REPLACE VARIABLE start_year INT = 1900;
+DECLARE OR REPLACE VARIABLE end_year INT = 2090;
+
 create or replace table calendar_dbx.day_of_week_beta as select * from cal_gen.make_day_of_week_v;
 create or replace table calendar_dbx.hour_of_day_beta as select * from cal_gen.make_hour_of_day_v;
 create or replace table calendar_dbx.minute_of_hour_beta as select * from cal_gen.make_minute_of_hour_v;
@@ -252,6 +252,8 @@ create or replace table calendar_dbx.gregorian_year_month_beta as select * from 
 create or replace table calendar_dbx.year_week_beta as select * from cal_gen.make_year_week_v where year_nbr between start_year and end_year; 
 create or replace table calendar_dbx.calendar_date_beta as select * from cal_gen.make_calendar_date_v where year_nbr between start_year and end_year; 
 
+-- add comments to beta calendar tables 
+-- calendar_dbx.calendar_date_beta
 COMMENT ON TABLE calendar_dbx.calendar_date_beta IS 'A calendar day represents the spin of the earth on its axis, providing a day and night cycle.';
 ALTER TABLE calendar_dbx.calendar_date_beta CHANGE COLUMN day_of_week_iso_nbr COMMENT 'ISO defines Monday as the first day of the week.';
 ALTER TABLE calendar_dbx.calendar_date_beta CHANGE COLUMN year_week_nbr COMMENT 'Weeks always have seven days, and each is assigned a number within a Year; week 1 contains January 1 for that year.'; 
@@ -296,9 +298,20 @@ COMMENT ON TABLE calendar_dbx.year_week_beta IS 'This is the nautral list of wee
 ALTER TABLE calendar_dbx.year_week_beta CHANGE COLUMN year_week_nbr COMMENT 'The numbered weeks within a year.';
 ALTER TABLE calendar_dbx.year_week_beta CHANGE COLUMN year_nbr COMMENT 'The year that contains this week.';
 
-/* UNITY CATALOG NEEDED
--- add keys for beta calendar tables
--- primary keys and indexes
+-- set primary key columns to NOT NULL - required in DBX
+ALTER TABLE calendar_dbx.calendar_date_beta ALTER COLUMN calendar_date SET NOT NULL;
+ALTER TABLE calendar_dbx.day_of_week_beta ALTER COLUMN day_of_week_iso_nbr SET NOT NULL;
+ALTER TABLE calendar_dbx.gregorian_month_of_year_beta ALTER COLUMN month_of_year_nbr SET NOT NULL;
+ALTER TABLE calendar_dbx.gregorian_year_beta ALTER COLUMN year_nbr SET NOT NULL;
+ALTER TABLE calendar_dbx.hour_of_day_beta ALTER COLUMN hour_of_day_nbr SET NOT NULL;
+ALTER TABLE calendar_dbx.minute_of_hour_beta ALTER COLUMN minute_of_hour_nbr SET NOT NULL;
+ALTER TABLE calendar_dbx.gregorian_quarter_of_year_beta ALTER COLUMN quarter_of_year_nbr SET NOT NULL;
+ALTER TABLE calendar_dbx.gregorian_year_month_beta ALTER COLUMN year_month_nbr SET NOT NULL;
+ALTER TABLE calendar_dbx.gregorian_year_quarter_beta ALTER COLUMN year_quarter_nbr SET NOT NULL;
+ALTER TABLE calendar_dbx.year_week_beta ALTER COLUMN year_week_nbr SET NOT NULL;
+
+-- add keys for beta calendar tables - UNITY CATALOG required
+-- primary keys
 ALTER TABLE calendar_dbx.calendar_date_beta ADD CONSTRAINT calendar_date_beta_pk  PRIMARY KEY (calendar_date);
 ALTER TABLE calendar_dbx.day_of_week_beta ADD CONSTRAINT day_of_week_beta_pk  PRIMARY KEY (day_of_week_iso_nbr);
 ALTER TABLE calendar_dbx.gregorian_month_of_year_beta ADD CONSTRAINT gregorian_month_of_year_beta_pk  PRIMARY KEY (month_of_year_nbr);
@@ -309,18 +322,6 @@ ALTER TABLE calendar_dbx.gregorian_quarter_of_year_beta ADD CONSTRAINT gregorian
 ALTER TABLE calendar_dbx.gregorian_year_month_beta ADD CONSTRAINT gregorian_year_month_beta_pk  PRIMARY KEY (year_month_nbr);
 ALTER TABLE calendar_dbx.gregorian_year_quarter_beta ADD CONSTRAINT gregorian_year_quarter_beta_pk  PRIMARY KEY (year_quarter_nbr);
 ALTER TABLE calendar_dbx.year_week_beta ADD CONSTRAINT year_week_beta_pk  PRIMARY KEY (year_week_nbr);
-CREATE UNIQUE INDEX gregorian_month_of_year_beta_ak1 ON calendar_dbx.gregorian_month_of_year_beta (month_of_year_code);
-CREATE UNIQUE INDEX gregorian_year_quarter_beta_ak1 ON calendar_dbx.gregorian_year_quarter_beta (year_quarter_standard_code);
-CREATE UNIQUE INDEX year_week_beta_ak1 ON calendar_dbx.year_week_beta (year_nbr, week_of_year_nbr);
-CREATE INDEX calendar_date_year_week_beta_if1 ON calendar_dbx.calendar_date_beta (year_week_nbr);
-CREATE INDEX calendar_date_year_month_beta_if2 ON calendar_dbx.calendar_date_beta (year_month_nbr);
-CREATE INDEX calendar_date_day_of_week_beta_if3 ON calendar_dbx.calendar_date_beta (day_of_week_iso_nbr);
-CREATE INDEX gregorian_month_of_year_beta_quarter_of_year_if1 ON calendar_dbx.gregorian_month_of_year_beta (quarter_of_year_nbr);
-CREATE INDEX gregorian_year_month_year_quarter_beta_if1 ON calendar_dbx.gregorian_year_month_beta (year_quarter_nbr);
-CREATE INDEX gregorian_year_month_of_year_beta_if1 ON calendar_dbx.gregorian_year_month_beta (month_of_year_nbr);
-CREATE INDEX gregorian_year_quarter_year_beta_if1 ON calendar_dbx.gregorian_year_quarter_beta (year_nbr);
-CREATE INDEX gregorian_year_quarter_of_year_beta_if2 ON calendar_dbx.gregorian_year_quarter_beta (quarter_of_year_nbr);
-CREATE INDEX year_week_beta_if1 ON calendar_dbx.year_week_beta (year_nbr);
 
 -- foreign keys
 ALTER TABLE calendar_dbx.calendar_date_beta ADD CONSTRAINT calendar_date_year_week_beta_fk 
@@ -341,7 +342,6 @@ ALTER TABLE calendar_dbx.gregorian_year_quarter_beta ADD CONSTRAINT gregorian_ye
 FOREIGN KEY (quarter_of_year_nbr) REFERENCES calendar_dbx.gregorian_quarter_of_year_beta (quarter_of_year_nbr);
 ALTER TABLE calendar_dbx.year_week_beta ADD CONSTRAINT year_week_gregorian_year_beta_fk  
 FOREIGN KEY (year_nbr) REFERENCES calendar_dbx.gregorian_year_beta (year_nbr);
-*/
 
 -- generate beta transformation tables
 -- MTD
@@ -377,8 +377,17 @@ from calendar_dbx.calendar_date_beta d join calendar_dbx.calendar_date_beta x
 where x.calendar_date <= d.calendar_date
 order by d.calendar_date, x.calendar_date;
 
-/* UNITY CATALOG NEEDED
--- create foreign keys for beta transformation tables
+-- set primary key columns in transformation tables to NOT NULL - required in DBX
+alter table calendar_dbx.cumulative_month_to_dates_beta alter column calendar_date set not null;
+alter table calendar_dbx.cumulative_month_to_dates_beta alter column cumulative_month_to_date set not null;
+alter table calendar_dbx.cumulative_quarter_to_dates_beta alter column calendar_date set not null;
+alter table calendar_dbx.cumulative_quarter_to_dates_beta alter column cumulative_quarter_to_date set not null;
+alter table calendar_dbx.cumulative_year_to_dates_beta alter column calendar_date set not null;
+alter table calendar_dbx.cumulative_year_to_dates_beta alter column cumulative_year_to_date set not null;
+alter table calendar_dbx.cumulative_week_to_dates_beta alter column calendar_date set not null;
+alter table calendar_dbx.cumulative_week_to_dates_beta alter column cumulative_week_to_date set not null;
+
+-- create foreign keys for beta transformation tables - UNITY CATALOG required
 -- add constraints for calendar_dbx.cumulative_month_to_dates_beta:
 alter table calendar_dbx.cumulative_month_to_dates_beta 
   add constraint cumulative_month_to_dates_beta_pk primary key (calendar_date, cumulative_month_to_date);
@@ -416,18 +425,16 @@ alter table calendar_dbx.cumulative_year_to_dates_beta
   references calendar_dbx.calendar_date_beta (calendar_date);
 
 -- add constraints for calendar.cumulative_year_to_dates_beta:
-alter table calendar.cumulative_week_to_dates_beta 
+alter table calendar_dbx.cumulative_week_to_dates_beta 
   add constraint cumulative_week_to_dates_beta_pk primary key (calendar_date, cumulative_week_to_date);
   
-alter table calendar.cumulative_week_to_dates_beta 
+alter table calendar_dbx.cumulative_week_to_dates_beta 
   add constraint cumulative_week_to_dates_beta_base_date_fk foreign key (calendar_date)
-  references calendar.calendar_date_beta (calendar_date);
+  references calendar_dbx.calendar_date_beta (calendar_date);
   
-alter table calendar.cumulative_week_to_dates_beta 
+alter table calendar_dbx.cumulative_week_to_dates_beta 
   add constraint cumulative_week_to_dates_beta_qtd_date_fk foreign key (cumulative_week_to_date)
-  references calendar.caalendar_date_beta (calendar_date);
-
-*/
+  references calendar_dbx.calendar_date_beta (calendar_date);
 
 -- create CAL views (MicroStrategy facing)
 create or replace view calendar_dbx.calendar_date_v as select *, 1::integer as calendar_date_qty from calendar_dbx.calendar_date_beta;
@@ -442,5 +449,7 @@ create or replace view calendar_dbx.year_quarter_v as select *, 1::integer as ye
 create or replace view calendar_dbx.year_week_v as select *, 1::integer as year_week_qty from calendar_dbx.year_week_beta;
 create or replace view calendar_dbx.cumulative_month_to_dates_v as select calendar_date, cumulative_month_to_date from calendar_dbx.cumulative_month_to_dates_beta;
 create or replace view calendar_dbx.cumulative_quarter_to_dates_v as select calendar_date, cumulative_quarter_to_date from calendar_dbx.cumulative_quarter_to_dates_beta;
-create or replace view calendar_dbx.cumulative_week_to_dates_v as select calendar_date, cumulative_week_to_date from calendar_dbx.cumulative_week_to_dates_beta;
 create or replace view calendar_dbx.cumulative_year_to_dates_v as select calendar_date, cumulative_year_to_date from calendar_dbx.cumulative_year_to_dates_beta;
+create or replace view calendar_dbx.cumulative_week_to_dates_v as select calendar_date, cumulative_week_to_date from calendar_dbx.cumulative_week_to_dates_beta;
+
+-- END of script
