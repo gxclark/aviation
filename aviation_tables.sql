@@ -1,5 +1,14 @@
--- an external location pointing to mstr-aviation-oai s3 bucket with parquet files is expected to be created
+-- create an external location pointing to mstr-aviation-oai s3 bucket first
+-- run aviation_schemas.sql to set up schemas before creating tables
+-- this script creates external tables based on parquet exports from Snowflake with default partitioning settings
+-- for a different partitioning scheme for fact tables refer to aviation_tables_partitioning.sql
 
+-- all fact tables are created in 1 schema (air_oai_facts) and are populated from 3 data sources (OTP, T100, DB1B)
+-- all dimension tables are created in 3 schemas (air_oai_dims, air_faa_reg, calendar_dbx) and are populated from 3 data sources (DIMS, FAA, CAL)
+
+-----------
+-- OTP
+-----------
 -- air_oai_facts.airline_flights_scheduled
 DROP TABLE IF EXISTS air_oai_facts.airline_flights_scheduled;
 CREATE TABLE air_oai_facts.airline_flights_scheduled USING PARQUET LOCATION 's3://mstr-aviation-oai/OTP/schedule/parquet';
@@ -20,6 +29,9 @@ CREATE TABLE air_oai_facts.airline_flights_diverted USING PARQUET LOCATION 's3:/
 DROP TABLE IF EXISTS air_oai_facts.airline_flights_diverted_legs;
 CREATE TABLE air_oai_facts.airline_flights_diverted_legs USING PARQUET LOCATION 's3://mstr-aviation-oai/OTP/diverted-legs/parquet';
 
+-----------
+-- T100
+-----------
 -- air_oai_facts.airline_traffic_market
 DROP TABLE IF EXISTS air_oai_facts.airline_traffic_market;
 CREATE TABLE air_oai_facts.airline_traffic_market USING PARQUET LOCATION 's3://mstr-aviation-oai/T100/market/parquet/airline_traffic_market'
@@ -30,6 +42,9 @@ DROP TABLE IF EXISTS air_oai_facts.airline_traffic_segment;
 CREATE TABLE air_oai_facts.airline_traffic_segment USING PARQUET LOCATION 's3://mstr-aviation-oai/T100/segment/parquet/airline_traffic_segment'
 OPTIONS (recursiveFileLookup=true);
 
+-----------
+-- DB1B
+-----------
 -- air_oai_facts.airfare_survey_itinerary
 DROP TABLE IF EXISTS air_oai_facts.airfare_survey_itinerary;
 CREATE TABLE air_oai_facts.airfare_survey_itinerary USING PARQUET LOCATION 's3://mstr-aviation-oai/DB1B/ticket/parquet/old_export'
@@ -45,6 +60,9 @@ DROP TABLE IF EXISTS air_oai_facts.airfare_survey_market;
 CREATE TABLE air_oai_facts.airfare_survey_market USING PARQUET LOCATION 's3://mstr-aviation-oai/DB1B/market/parquet/old_export'
 OPTIONS (recursiveFileLookup=true);
 
+-----------
+-- DIMS
+-----------
 -- air_oai_dims.aircraft_configurations
 DROP TABLE IF EXISTS air_oai_dims.aircraft_configurations;
 CREATE TABLE air_oai_dims.aircraft_configurations USING PARQUET LOCATION 's3://mstr-aviation-oai/DIMS/parquet/aircraft_configurations.parquet';
@@ -69,6 +87,9 @@ CREATE TABLE air_oai_dims.airport_history USING PARQUET LOCATION 's3://mstr-avia
 DROP TABLE IF EXISTS air_oai_dims.world_areas;
 CREATE TABLE air_oai_dims.world_areas USING PARQUET LOCATION 's3://mstr-aviation-oai/DIMS/parquet/world_areas.parquet';
 
+-----------
+-- FAA
+-----------
 -- air_faa_reg.aircraft_registry
 DROP TABLE IF EXISTS air_faa_reg.aircraft_registry;
 CREATE TABLE air_faa_reg.aircraft_registry USING PARQUET LOCATION 's3://mstr-aviation-oai/FAA/parquet/aircraft_registry.parquet';
@@ -81,6 +102,9 @@ CREATE TABLE air_faa_reg.aircraft_reference USING PARQUET LOCATION 's3://mstr-av
 DROP TABLE IF EXISTS air_faa_reg.engine_reference;
 CREATE TABLE air_faa_reg.engine_reference USING PARQUET LOCATION 's3://mstr-aviation-oai/FAA/parquet/engine_reference.parquet';
 
+-----------
+-- CAL
+-----------
 -- calendar_dbx.calendar_date_alpha
 DROP TABLE IF EXISTS calendar_dbx.calendar_date_alpha;
 CREATE TABLE calendar_dbx.calendar_date_alpha USING PARQUET LOCATION 's3://mstr-aviation-oai/CAL/parquet/calendar_date_alpha.parquet';
