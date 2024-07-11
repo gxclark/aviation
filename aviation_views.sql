@@ -197,6 +197,26 @@ SELECT airline_entity_id
 	, source_thru_date
 FROM air_oai_dims.airline_entities;
 
+-- drop view if exists airlines_dbx.airline_entities_current_v:
+create or replace view airlines_dbx.airline_entities_current_v as
+SELECT --airline_entity_id, airline_entity_key
+	 airline_oai_code
+	, airline_usdot_id
+	, entity_oai_code
+	, airline_name
+	--, airline_unique_oai_code
+	--, entity_unique_oai_code
+	--, airline_unique_name
+	, world_area_oai_id
+	, world_area_oai_seq_id
+	, airline_old_group_nbr
+	, airline_new_group_nbr
+	, operating_region_code
+	--, source_from_date
+	--, source_thru_date
+FROM air_oai_dims.airline_entities
+where source_thru_date is null;
+
 -- drop view if exists airlines_dbx.airline_service_classes_v:
 create or replace view airlines_dbx.airline_service_classes_v as
 SELECT service_class_code
@@ -219,6 +239,24 @@ SELECT airport_history_id, airport_history_key, airport_oai_code, effective_from
 	, latitude_decimal_nbr, longitude_decimal_nbr
 FROM air_oai_dims.airport_history;
 
+-- drop view if exists airlines_dbx.airport_current_v;
+create or replace view airlines_dbx.airport_current_v as
+SELECT -- airport_history_id, airport_history_key,
+      airport_oai_code -- , effective_from_date, effective_thru_date
+	, airport_closed_ind
+	-- , airport_latest_ind, airport_oai_seq_id
+	, airport_oai_id, airport_display_name
+	, city_full_display_name
+	, airport_world_area_oai_seq_id, airport_world_area_oai_id, airport_world_area_key
+	, utc_local_time_variation, time_zone_name
+	, market_city_oai_seq_id, market_city_oai_id, market_city_full_display_name
+	, market_city_world_area_oai_seq_id, market_city_world_area_oai_id, market_city_world_area_key
+	, subdivision_iso_code, subdivision_fips_code, subdivision_name
+	, country_iso_code, country_name
+	, latitude_decimal_nbr, longitude_decimal_nbr
+FROM air_oai_dims.airport_history
+where airport_latest_ind = 1;
+
 -- drop view if exists airlines_dbx.world_areas_v:
 create or replace view airlines_dbx.world_areas_v as
 SELECT world_area_oai_seq_id, world_area_key
@@ -228,6 +266,18 @@ SELECT world_area_oai_seq_id, world_area_key
 	, country_iso_code, country_short_name, country_type_descr
 	, sovereign_country_name, capital_city_name, world_area_comments_text
 FROM air_oai_dims.world_areas;
+
+-- drop view if exists airlines_dbx.world_areas_current_v:
+create or replace view airlines_dbx.world_areas_current_v as
+SELECT world_area_oai_id
+    --, world_area_oai_seq_id, world_area_key
+	--, effective_from_date, effective_thru_date, world_area_latest_ind
+	, world_area_name, world_region_name
+	, subdivision_iso_code, subdivision_fips_code, subdivision_name
+	, country_iso_code, country_short_name, country_type_descr
+	, sovereign_country_name, capital_city_name, world_area_comments_text
+FROM air_oai_dims.world_areas
+where world_area_latest_ind = 1;
 
 -- drop view if exists airlines_dbx.aircraft_registry_v;
 create or replace view airlines_dbx.aircraft_registry_v as
